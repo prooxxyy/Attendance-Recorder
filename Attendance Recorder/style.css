@@ -1,0 +1,174 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Inter', Arial, sans-serif;
+    letter-spacing: 0.3px;
+}
+
+body{
+    background-image: 
+        radial-gradient(rgba(142, 142, 142, 0.6), rgba(46, 46, 46, 0.6)),
+        url("image/NextGen_Picture.png");
+    background-size: 1600px 1100px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:rgb(170, 193, 216);
+    padding:25px;
+    border-radius:10px;
+    box-shadow:rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;;
+    margin-top: 45px;
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+label{
+    font-weight:bold;
+    display:block;
+    margin-top:10px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 600;
+}
+
+input,
+select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:15px;
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 400;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#007BFF;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+table{
+    width:100%;
+    margin-top:30px;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+table th,
+table td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+table th{
+    background:#007BFF;
+    color:white;
+}
+
+table tr:nth-child(even){
+    background:#f2f2f2;
+}
+
+#attendanceTable thead,
+#attendanceTable tbody tr{
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+
+#attendanceTable tbody{
+    display:block;
+    max-height:132px;
+    overflow-y:auto;
+    width:101%;
+}
+
+#attendanceTable tbody::-webkit-scrollbar{
+    width:8px;
+}
+
+#attendanceTable tbody::-webkit-scrollbar-thumb{
+    background:#c1c1c1;
+    border-radius:4px;
+}
+
+/* Success Modal */
+
+.modal{
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5);
+    z-index:999;
+}
+
+.modal-content{
+    background:#fff;
+    width:350px;
+    margin:12% auto;
+    padding:25px;
+    border-radius:10px;
+    text-align:center;
+    animation:popup .3s ease;
+}
+
+.modal-content h2{
+    color:#28a745;
+    margin-bottom:10px;
+}
+
+.modal-content button{
+    margin-top:20px;
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:5px;
+    background:#007BFF;
+    color:white;
+    cursor:pointer;
+}
+
+.modal-content button:hover{
+    background:#0056b3;
+}
+
+@keyframes popup{
+    from{
+        transform:scale(.8);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}

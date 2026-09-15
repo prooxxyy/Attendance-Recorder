@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Classroom Attendance</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+    <h2>Smart Classroom Attendance</h2>
+
+    <label for="name">Full Name</label>
+    <input type="text" id="name" placeholder="Enter Full Name">
+
+    <label for="office">Office</label>
+    <input type="text" id="office" placeholder="Enter Office">
+
+    <label for="Positom">Position</label>
+    <input type="text" id="position" placeholder="Enter Position">
+
+    <label for="datetime"></label>
+    <input type="hidden" id="datetime" placeholder="Will be recorded upon submission" readonly>
+
+
+    <button onclick="addAttendance()">
+        Submit Attendance
+    </button>
+
+    <button onclick="downloadExcel()" style="background:#28a745; margin-top:10px; width: 10px; height: 20px;display:flex; align-items:center; justify-content:center; border-radius:5px; border:none; cursor:pointer; margin-left: 626px;">
+            <img src="image\Download Icon.png" alt="" style="width:18px; height:18px;">
+    </button>
+
+    <table id="attendanceTable">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Office</th>
+                <th>Position</th>
+                <th>Date & TIme</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        </tbody>
+
+    </table>
+    <div id="successModal" class="modal">
+
+    <div class="modal-content">
+
+        <h2>✅ Attendance Submitted Successfully!</h2>
+
+        <p>Your attendance has been recorded.</p>
+
+        <button onclick="closeModal()">OK</button>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</div>
+
+<div id="attendanceModal" class="modal">
+
+    <div class="modal-content">
+
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h2>Attendance Recorded Successfully</h2>
+
+        <p><strong>Full Name:</strong> <span id="modalName"></span></p>
+
+        <p><strong>Address:</strong> <span id="modalOffice"></span></p>
+
+        <p><strong>Purpose:</strong> <span id="modalPosition"></span></p>
+
+        <p><strong>Date Submitted:</strong> <span id="modalDate"></span></p>
+
+        <button onclick="closeModal()">OK</button>
+
+    </div>
+
+</div>
+
+</body>
+</html>
