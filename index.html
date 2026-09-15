@@ -1,97 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Classroom Attendance</title>
 
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Smart Classroom - QR Scanner</title>
+
+
+    <!-- GOOGLE FONTS -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+
+    <!-- QR SCANNER LIBRARY -->
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 </head>
+
+
 <body>
 
 
-<div class="container">
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
 
-    <h2>Smart Classroom Attendance</h2>
+    <header class="top-navigation">
 
-    <label for="name">Full Name</label>
-    <input type="text" id="name" placeholder="Enter Full Name">
+        <div class="logo-area">
 
-    <label for="office">Office</label>
-    <input type="text" id="office" placeholder="Enter Office">
+            <div class="logo-icon">
+                ✓
+            </div>
 
-    <label for="Positom">Position</label>
-    <input type="text" id="position" placeholder="Enter Position">
+            <div class="logo-text">
 
-    <label for="datetime"></label>
-    <input type="hidden" id="datetime" placeholder="Will be recorded upon submission" readonly>
+                <h2>
+                    Smart Classroom
+                </h2>
+
+                <span>
+                    Attendance System
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
 
 
-    <button onclick="addAttendance()">
-        Submit Attendance
-    </button>
 
-    <button onclick="downloadExcel()" style="background:#28a745; margin-top:10px; width: 10px; height: 20px;display:flex; align-items:center; justify-content:center; border-radius:5px; border:none; cursor:pointer; margin-left: 626px;">
-            <img src="image\Download Icon.png" alt="" style="width:18px; height:18px;">
-    </button>
+    <!-- ==========================================
+         MAIN
+    =========================================== -->
 
-    <table id="attendanceTable">
+    <main class="page-container">
 
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Office</th>
-                <th>Position</th>
-                <th>Date & TIme</th>
-            </tr>
-        </thead>
 
-        <tbody>
+        <!-- PAGE HEADING -->
 
-        </tbody>
+        <section class="page-heading">
 
-    </table>
-    <div id="successModal" class="modal">
+            <span>
+                TEACHER ACCESS
+            </span>
 
-    <div class="modal-content">
+            <h1>
+                QR Code Scanner
+            </h1>
 
-        <h2>✅ Attendance Submitted Successfully!</h2>
+        </section>
 
-        <p>Your attendance has been recorded.</p>
 
-        <button onclick="closeModal()">OK</button>
 
-    </div>
+        <!-- ==========================================
+             SCANNER LAYOUT
+        =========================================== -->
 
-</div>
+        <section class="scanner-layout">
 
-<script src="script.js"></script>
 
-</div>
+            <!-- ======================================
+                 CAMERA CARD
+            ======================================= -->
 
-<div id="attendanceModal" class="modal">
+            <div class="scanner-card">
 
-    <div class="modal-content">
+                <div class="card-title">
 
-        <span class="close" onclick="closeModal()">&times;</span>
+                    <div class="title-icon scanner-icon">
+                        ◉
+                    </div>
 
-        <h2>Attendance Recorded Successfully</h2>
+                    <div>
 
-        <p><strong>Full Name:</strong> <span id="modalName"></span></p>
+                        <h2>
+                            Scan QR Code
+                        </h2>
 
-        <p><strong>Address:</strong> <span id="modalOffice"></span></p>
+                    </div>
 
-        <p><strong>Purpose:</strong> <span id="modalPosition"></span></p>
+                </div>
 
-        <p><strong>Date Submitted:</strong> <span id="modalDate"></span></p>
 
-        <button onclick="closeModal()">OK</button>
+                <!-- CAMERA -->
 
-    </div>
+                <div
+                    id="reader"
+                    class="reader"
+                ></div>
 
-</div>
+
+                <!-- START BUTTON -->
+
+                <button
+                    id="startScannerButton"
+                    class="scanner-button"
+                    type="button"
+                >
+                    ◉ Start Scanner
+                </button>
+
+
+                <!-- STOP BUTTON -->
+
+                <button
+                    id="stopScannerButton"
+                    class="stop-scanner-button"
+                    type="button"
+                >
+                    ■ Stop Scanner
+                </button>
+
+            </div>
+
+
+
+            <!-- ======================================
+                 RESULT CARD
+            ======================================= -->
+
+            <div class="scanner-result-card">
+
+
+                <!-- RESULT HEADER -->
+
+                <div class="result-header">
+
+                    <div>
+
+                        <span class="small-title">
+                            SCANNED INFORMATION
+                        </span>
+
+                        <h2>
+                            Attendance Details
+                        </h2>
+
+                    </div>
+
+                    <div class="result-icon">
+                        ✓
+                    </div>
+
+                </div>
+
+
+
+                <!-- WAITING -->
+
+                <div
+                    id="noScanResult"
+                    class="no-scan-result"
+                >
+
+                    <div class="no-result-icon">
+                        ▣
+                    </div>
+
+                    <h3>
+                        Waiting for Scan
+                    </h3>
+
+                </div>
+
+
+
+                <!-- SCANNED RESULT -->
+
+                <div
+                    id="scanResult"
+                    class="scan-result"
+                >
+
+
+                    <!-- NAME -->
+
+                    <div class="person-name">
+
+                        <span>
+                            FULL NAME
+                        </span>
+
+                        <strong id="resultName">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <!-- DETAILS -->
+
+                    <div class="result-details">
+
+                        <div class="detail-box">
+
+                            <span>
+                                Office
+                            </span>
+
+                            <strong id="resultOffice">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-box">
+
+                            <span>
+                                Position
+                            </span>
+
+                            <strong id="resultPosition">
+                                -
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-box full">
+
+                            <span>
+                                Date & Time
+                            </span>
+
+                            <strong id="resultDate">
+                                -
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VERIFIED -->
+
+                    <div class="attendance-success">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        Attendance QR Verified
+
+                    </div>
+
+
+                    <!-- RECORD -->
+
+                    <button
+                        id="recordAttendanceButton"
+                        type="button"
+                        class="record-button"
+                    >
+                        ✓ Record Attendance
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ==========================================
+         JAVASCRIPT
+    =========================================== -->
+
+    <script src="script.js"></script>
 
 </body>
+
 </html>

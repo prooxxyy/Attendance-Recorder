@@ -1,103 +1,678 @@
-function addAttendance() {
+// ==========================================
+// SMART CLASSROOM QR SCANNER
+// ==========================================
 
-    let name = document.getElementById("name").value.trim();
-    let office = document.getElementById("office").value.trim();
-    let position = document.getElementById("position").value.trim();
+let scanner = null;
+let scannerRunning = false;
+let scannedData = null;
 
-    if (name === "" || office === "" || position === "") {
-        alert("Please complete all fields.");
+
+// ==========================================
+// GET ELEMENTS
+// ==========================================
+
+const startButton =
+    document.getElementById("startScannerButton");
+
+const stopButton =
+    document.getElementById("stopScannerButton");
+
+const recordButton =
+    document.getElementById("recordAttendanceButton");
+
+
+// ==========================================
+// CHECK PAGE
+// ==========================================
+
+console.log("scanner.js loaded successfully.");
+
+
+// Check QR library
+if (typeof Html5Qrcode === "undefined") {
+
+    console.error(
+        "Html5Qrcode library was NOT loaded."
+    );
+
+} else {
+
+    console.log(
+        "Html5Qrcode library loaded successfully."
+    );
+
+}
+
+
+// ==========================================
+// START BUTTON
+// ==========================================
+
+if (startButton) {
+
+    startButton.addEventListener(
+        "click",
+        startScanner
+    );
+
+}
+
+
+// ==========================================
+// STOP BUTTON
+// ==========================================
+
+if (stopButton) {
+
+    stopButton.addEventListener(
+        "click",
+        stopScanner
+    );
+
+}
+
+
+// ==========================================
+// RECORD BUTTON
+// ==========================================
+
+if (recordButton) {
+
+    recordButton.addEventListener(
+        "click",
+        recordScannedAttendance
+    );
+
+}
+
+
+// ==========================================
+// START SCANNER
+// ==========================================
+
+async function startScanner() {
+
+    console.log("Start Scanner button clicked.");
+
+
+    // Prevent duplicate scanner
+    if (scannerRunning) {
+
+        console.log(
+            "Scanner is already running."
+        );
+
         return;
+
     }
 
-    // Current date and time
-    const now = new Date();
 
-    const options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true
+    // Check library
+    if (typeof Html5Qrcode === "undefined") {
+
+        alert(
+            "QR Scanner library is not loaded.\n\n" +
+            "Please check your internet connection and reload the page."
+        );
+
+        return;
+
+    }
+
+
+    // Check reader
+    const reader =
+        document.getElementById("reader");
+
+
+    if (!reader) {
+
+        alert(
+            "Scanner area was not found."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        // ==========================================
+        // CHECK CAMERA
+        // ==========================================
+
+        console.log(
+            "Checking available cameras..."
+        );
+
+
+        const cameras =
+            await Html5Qrcode.getCameras();
+
+
+        console.log(
+            "Available cameras:",
+            cameras
+        );
+
+
+        if (!cameras || cameras.length === 0) {
+
+            throw new Error(
+                "No camera detected."
+            );
+
+        }
+
+
+        // ==========================================
+        // SELECT CAMERA
+        // ==========================================
+
+        let cameraId =
+            cameras[0].id;
+
+
+        // Try to find rear camera
+        for (const camera of cameras) {
+
+            const label =
+                camera.label.toLowerCase();
+
+
+            if (
+                label.includes("back") ||
+                label.includes("rear") ||
+                label.includes("environment")
+            ) {
+
+                cameraId =
+                    camera.id;
+
+                break;
+
+            }
+
+        }
+
+
+        console.log(
+            "Using camera:",
+            cameraId
+        );
+
+
+        // ==========================================
+        // CREATE SCANNER
+        // ==========================================
+
+        scanner =
+            new Html5Qrcode("reader");
+
+
+        // ==========================================
+        // CONFIG
+        // ==========================================
+
+        const config = {
+
+            fps: 10,
+
+            qrbox: {
+                width: 250,
+                height: 250
+            }
+
+        };
+
+
+        // ==========================================
+        // START CAMERA
+        // ==========================================
+
+        await scanner.start(
+
+            cameraId,
+
+            config,
+
+            onScanSuccess,
+
+            onScanFailure
+
+        );
+
+
+        scannerRunning = true;
+
+
+        console.log(
+            "Scanner started successfully."
+        );
+
+
+        // ==========================================
+        // BUTTONS
+        // ==========================================
+
+        if (startButton) {
+
+            startButton.style.display =
+                "none";
+
+        }
+
+
+        if (stopButton) {
+
+            stopButton.style.display =
+                "block";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Unable to start scanner:",
+            error
+        );
+
+
+        scannerRunning = false;
+        scanner = null;
+
+
+        alert(
+            "Unable to start the camera.\n\n" +
+
+            "Please check:\n" +
+
+            "• Camera permission is allowed\n" +
+
+            "• You are using HTTPS or localhost\n" +
+
+            "• Your device has a camera\n" +
+
+            "• No other application is using the camera"
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// QR SUCCESS
+// ==========================================
+
+function onScanSuccess(decodedText) {
+
+    console.log(
+        "QR CODE DETECTED:",
+        decodedText
+    );
+
+
+    // Prevent duplicate scan
+    if (scannedData !== null) {
+
+        return;
+
+    }
+
+
+    try {
+
+        // Convert QR text to JSON
+        const data =
+            JSON.parse(decodedText);
+
+
+        console.log(
+            "QR DATA:",
+            data
+        );
+
+
+        // ==========================================
+        // VALIDATE QR
+        // ==========================================
+
+        if (
+            !data.name &&
+            !data.office &&
+            !data.position
+        ) {
+
+            throw new Error(
+                "Not an attendance QR."
+            );
+
+        }
+
+
+        scannedData = data;
+
+
+        // ==========================================
+        // DISPLAY NAME
+        // ==========================================
+
+        document.getElementById(
+            "resultName"
+        ).textContent =
+            data.name || "-";
+
+
+        // ==========================================
+        // DISPLAY OFFICE
+        // ==========================================
+
+        document.getElementById(
+            "resultOffice"
+        ).textContent =
+            data.office || "-";
+
+
+        // ==========================================
+        // DISPLAY POSITION
+        // ==========================================
+
+        document.getElementById(
+            "resultPosition"
+        ).textContent =
+            data.position || "-";
+
+
+        // ==========================================
+        // DISPLAY DATE
+        // ==========================================
+
+        document.getElementById(
+            "resultDate"
+        ).textContent =
+            data.dateTime ||
+            new Date().toLocaleString();
+
+
+        // ==========================================
+        // SHOW RESULT
+        // ==========================================
+
+        document.getElementById(
+            "noScanResult"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "scanResult"
+        ).style.display =
+            "block";
+
+
+        // Stop camera
+        stopScanner();
+
+
+    } catch (error) {
+
+        console.error(
+            "Invalid QR code:",
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// SCAN FAILURE
+// ==========================================
+
+function onScanFailure(error) {
+
+    // Ignore continuous scan failures.
+    // This is normal while searching for QR codes.
+
+}
+
+
+// ==========================================
+// STOP SCANNER
+// ==========================================
+
+async function stopScanner() {
+
+    console.log(
+        "Stopping scanner..."
+    );
+
+
+    if (!scanner) {
+
+        scannerRunning = false;
+
+        if (startButton) {
+            startButton.style.display =
+                "block";
+        }
+
+        if (stopButton) {
+            stopButton.style.display =
+                "none";
+        }
+
+        return;
+
+    }
+
+
+    try {
+
+        if (scannerRunning) {
+
+            await scanner.stop();
+
+        }
+
+
+        await scanner.clear();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error stopping scanner:",
+            error
+        );
+
+    }
+
+
+    scanner = null;
+
+    scannerRunning = false;
+
+
+    // ==========================================
+    // BUTTONS
+    // ==========================================
+
+    if (startButton) {
+
+        startButton.style.display =
+            "block";
+
+    }
+
+
+    if (stopButton) {
+
+        stopButton.style.display =
+            "none";
+
+    }
+
+
+    console.log(
+        "Scanner stopped."
+    );
+
+}
+
+
+// ==========================================
+// RECORD ATTENDANCE
+// ==========================================
+
+function recordScannedAttendance() {
+
+    if (!scannedData) {
+
+        alert(
+            "Please scan a QR code first."
+        );
+
+        return;
+
+    }
+
+
+    // ==========================================
+    // CURRENT TIME
+    // ==========================================
+
+    const now =
+        new Date();
+
+
+    // ==========================================
+    // CREATE RECORD
+    // ==========================================
+
+    const record = {
+
+        name:
+            scannedData.name || "",
+
+        office:
+            scannedData.office || "",
+
+        position:
+            scannedData.position || "",
+
+        dateTime:
+            now.toISOString(),
+
+        displayDateTime:
+            now.toLocaleString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true
+                }
+            )
+
     };
 
-    const dateTime = now.toLocaleString("en-US", options);
 
-    // Display date and time
-    document.getElementById("datetime").value = dateTime;
+    // ==========================================
+    // GET EXISTING RECORDS
+    // ==========================================
 
-    // Add to table (newest on top)
-    const tbody = document.querySelector("#attendanceTable tbody");
+    let records = [];
 
-    const row = tbody.insertRow(0);
 
-    row.insertCell(0).textContent = name;
-    row.insertCell(1).textContent = office;
-    row.insertCell(2).textContent = position;
-    row.insertCell(3).textContent = dateTime;
+    try {
 
-    saveAttendance(name, office, position, dateTime); 
+        const saved =
+            localStorage.getItem(
+                "attendanceRecords"
+            );
 
-    // Clear the form
-    document.getElementById("name").value = "";
-    document.getElementById("office").value = "";
-    document.getElementById("position").value = "";
-    document.getElementById("datetime").value = "";
 
-    // Show popup
-    document.getElementById("successModal").style.display = "block";
-}
+        if (saved) {
 
-function closeModal() {
-    document.getElementById("successModal").style.display = "none";
-}
+            records =
+                JSON.parse(saved);
 
-// Close if clicked outside
-window.onclick = function(event) {
-    let modal = document.getElementById("successModal");
+        }
 
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
 
-function downloadExcel() {
-   const table = document.getElementById("attendanceTable");
-    const rows = table.querySelectorAll("tbody tr");
+        if (!Array.isArray(records)) {
 
-    if (rows.length === 0) {
-        alert("No attendance records to download yet.");
-        return;
+            records = [];
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not read attendance records:",
+            error
+        );
+
+        records = [];
+
     }
 
-    const workbook = XLSX.utils.table_to_book(table, { sheet: "Attendance" });
-    const today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(workbook, `NextGen_Smart_Classroom_Attendance_${today}.xlsx`);
 
-    // Clear the table and saved records after download
-    document.querySelector("#attendanceTable tbody").innerHTML = "";
-    localStorage.removeItem("attendanceRecords");
-}
+    // ==========================================
+    // ADD RECORD
+    // ==========================================
 
-window.addEventListener("DOMContentLoaded", loadAttendance);
+    records.push(record);
 
-function loadAttendance() {
-    const records = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
-    const tbody = document.querySelector("#attendanceTable tbody");
 
-    // Records are stored oldest-first; reverse so the newest shows on top
-    records.slice().reverse().forEach(record => {
-        const row = tbody.insertRow();
-        row.insertCell(0).textContent = record.name;
-        row.insertCell(1).textContent = record.office;
-        row.insertCell(2).textContent = record.position;
-        row.insertCell(3).textContent = record.dateTime;
-    });
-}
+    // ==========================================
+    // SAVE
+    // ==========================================
 
-function saveAttendance(name, office, position, dateTime) {
-    const records = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
-    records.push({ name, office, position, dateTime });
-    localStorage.setItem("attendanceRecords", JSON.stringify(records));
+    localStorage.setItem(
+        "attendanceRecords",
+        JSON.stringify(records)
+    );
+
+
+    // ==========================================
+    // SUCCESS
+    // ==========================================
+
+    alert(
+        "Attendance recorded successfully!"
+    );
+
+
+    // ==========================================
+    // RESET
+    // ==========================================
+
+    scannedData = null;
+
+
+    document.getElementById(
+        "scanResult"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "noScanResult"
+    ).style.display =
+        "block";
+
+
+    console.log(
+        "Attendance saved:",
+        record
+    );
+
 }
