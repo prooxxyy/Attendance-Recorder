@@ -531,148 +531,262 @@ async function stopScanner() {
 function recordScannedAttendance() {
 
     if (!scannedData) {
-
-        alert(
-            "Please scan a QR code first."
-        );
-
+        alert("Please scan a QR code first.");
         return;
-
     }
 
-
-    // ==========================================
-    // CURRENT TIME
-    // ==========================================
-
-    const now =
-        new Date();
-
-
-    // ==========================================
-    // CREATE RECORD
-    // ==========================================
+    const now = new Date();
 
     const record = {
-
-        name:
-            scannedData.name || "",
-
-        office:
-            scannedData.office || "",
-
-        position:
-            scannedData.position || "",
-
-        dateTime:
-            now.toISOString(),
-
-        displayDateTime:
-            now.toLocaleString(
-                "en-US",
-                {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: true
-                }
-            )
-
+        name: scannedData.name || "",
+        office: scannedData.office || "",
+        position: scannedData.position || "",
+        dateTime: now.toISOString(),
+        displayDateTime: now.toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        })
     };
-
-
-    // ==========================================
-    // GET EXISTING RECORDS
-    // ==========================================
 
     let records = [];
 
-
     try {
+        const savedRecords = localStorage.getItem("attendanceRecords");
 
-        const saved =
-            localStorage.getItem(
-                "attendanceRecords"
-            );
-
-
-        if (saved) {
-
-            records =
-                JSON.parse(saved);
-
+        if (savedRecords) {
+            records = JSON.parse(savedRecords);
         }
 
-
         if (!Array.isArray(records)) {
-
             records = [];
-
         }
 
     } catch (error) {
-
-        console.error(
-            "Could not read attendance records:",
-            error
-        );
-
+        console.error("Error loading attendance records:", error);
         records = [];
-
     }
 
-
-    // ==========================================
-    // ADD RECORD
-    // ==========================================
-
+    // Add new attendance record
     records.push(record);
 
-
-    // ==========================================
-    // SAVE
-    // ==========================================
-
+    // Save to browser storage
     localStorage.setItem(
         "attendanceRecords",
         JSON.stringify(records)
     );
 
+    alert("Attendance recorded successfully!");
 
-    // ==========================================
-    // SUCCESS
-    // ==========================================
-
-    alert(
-        "Attendance recorded successfully!"
-    );
-
-
-    // ==========================================
-    // RESET
-    // ==========================================
-
+    // Reset scanned result
     scannedData = null;
 
+    document.getElementById("scanResult").style.display = "none";
+    document.getElementById("noScanResult").style.display = "block";
 
-    document.getElementById(
-        "scanResult"
-    ).style.display =
-        "none";
-
-
-    document.getElementById(
-        "noScanResult"
-    ).style.display =
-        "block";
-
-
-    console.log(
-        "Attendance saved:",
-        record
-    );
-
+    // Update dashboard immediately
+    loadDashboard();
 }
+function loadDashboard() {
+
+    let records = [];
+
+    try {
+
+        const savedRecords =
+            localStorage.getItem("attendanceRecords");
+
+        if (savedRecords) {
+            records = JSON.parse(savedRecords);
+        }
+
+        if (!Array.isArray(records)) {
+            records = [];
+        }
+
+    } catch (error) {
+
+        console.error("Error loading dashboard:", error);
+        records = [];
+
+    }
+
+    updateDashboardStats(records);
+    displayAttendanceRecords(records);
+}
+
+
+function updateDashboardStats(records) {
+
+    const totalElement =
+        document.getElementById("totalAttendance");
+
+    const todayElement =
+        document.getElementById("todayAttendance");
+
+    const lastScanElement =
+        document.getElementById("lastScan");
+
+    if (!totalElement) return;
+
+    // Total attendance
+    totalElement.textContent = records.length;
+
+    // Today's attendance
+    const today = new Date().toDateString();
+
+    const todayRecords = records.filter(record => {
+
+        if (!record.dateTime) return false;
+
+        return new Date(record.dateTime).toDateString() === today;
+
+    });
+
+    todayElement.textContent = todayRecords.length;
+
+    // Last scan
+    if (records.length > 0) {
+
+        const lastRecord = records[records.length - 1];
+
+        lastScanElement.textContent =
+            lastRecord.name || "Unknown";
+
+    } else {
+
+        lastScanElement.textContent = "None";
+
+    }
+}
+
+
+function displayAttendanceRecords(records) {
+
+    const tableBody =
+        document.getElementById("attendanceTableBody");
+
+    const emptyDashboard =
+        document.getElementById("emptyDashboard");
+
+    if (!tableBody) return;
+
+    tableBody.innerHTML = "";
+
+    if (records.length === 0) {
+
+        emptyDashboard.style.display = "block";
+
+        return;
+
+    }
+
+    emptyDashboard.style.display = "none";
+
+    // Show newest attendance first
+    const reversedRecords = [...records].reverse();
+
+    reversedRecords.forEach((record, index) => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${records.length - index}</td>
+
+            <td>
+                ${escapeHTML(record.name || "-")}
+            </td>
+
+            <td>
+                ${escapeHTML(record.office || "-")}
+            </td>
+
+            <td>
+                ${escapeHTML(record.position || "-")}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    record.displayDateTime ||
+                    formatDateTime(record.dateTime)
+                )}
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+
+    });
+}
+
+
+function formatDateTime(dateTime) {
+
+    if (!dateTime) return "-";
+
+    const date = new Date(dateTime);
+
+    return date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+    });
+}
+
+
+function escapeHTML(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value;
+
+    return div.innerHTML;
+}
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadDashboard();
+
+    const refreshButton =
+        document.getElementById("refreshDashboardButton");
+
+    const clearButton =
+        document.getElementById("clearDashboardButton");
+
+
+    if (refreshButton) {
+
+        refreshButton.addEventListener("click", function () {
+
+            loadDashboard();
+
+        });
+
+    }
+
+
+    if (clearButton) {
+
+        clearButton.addEventListener("click", function () {
+
+            const confirmClear = confirm(
+                "Are you sure you want to clear all attendance records?"
+            );
+
+            if (!confirmClear) return;
+
+            localStorage.removeItem("attendanceRecords");
+
+            loadDashboard();
+
+        });
+
+    }
+
+});

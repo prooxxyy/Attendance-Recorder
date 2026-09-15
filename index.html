@@ -312,7 +312,82 @@
             </div>
 
         </section>
+<section class="dashboard-section">
+    <div class="dashboard-title">
+        <div>
+            <p class="section-label">TEACHER ACCESS</p>
+            <h2>Attendance Dashboard</h2>
+        </div>
 
+        <button id="refreshDashboardButton" class="refresh-button" type="button">
+            ↻ Refresh
+        </button>
+    </div>
+
+    <div class="dashboard-stats">
+
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div>
+                <span>Total Attendance</span>
+                <strong id="totalAttendance">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div>
+                <span>Today's Attendance</span>
+                <strong id="todayAttendance">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">✓</div>
+            <div>
+                <span>Last Scan</span>
+                <strong id="lastScan">None</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+            <div>
+                <p class="section-label">ATTENDANCE RECORDS</p>
+                <h3>Scanned Students</h3>
+            </div>
+
+            <button id="clearDashboardButton" class="clear-button" type="button">
+                Clear Records
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Office</th>
+                        <th>Position</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+
+                <tbody id="attendanceTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="emptyDashboard" class="empty-dashboard">
+            No attendance records yet.
+        </div>
+
+    </div>
+</section>
     </main>
 
 
